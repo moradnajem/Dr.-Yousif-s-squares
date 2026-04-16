@@ -86,27 +86,26 @@
 
         <pre id="code">
 //@version=6
-indicator("Dr. Yousif's squares", overlay=true, max_boxes_count=500)
+indicator("∏∏", overlay=true, max_boxes_count=500)
 
 // ================= INPUTS =================
-extendBars  = input.int(2, "Box Width", minval=1)
+extendBars = input.int(2, "Box Width", minval=1)
 borderWidth = input.int(2, "Border Thickness", minval=1, maxval=5)
 
-// show toggles (رجعناها)
 showCurrent = input.bool(true, "Show Current Candle")
-showPrev    = input.bool(true, "Show Previous Candle")
-showPrev2   = input.bool(true, "Show Previous 2 Candles")
+showPrev = input.bool(true, "Show Previous Candle")
+showPrev2 = input.bool(true, "Show Previous 2 Candles")
 
 // table position
 tablePos = input.string("top_right", "Table Position",
-     options=["top_right","top_left","bottom_right","bottom_left"])
+options=["top_right","top_left","bottom_right","bottom_left"])
 
 // ================= DEFAULT TIMEFRAMES =================
-tf1 = input.timeframe("60",  "TF1 (1H)")
+tf1 = input.timeframe("60", "TF1 (1H)")
 tf2 = input.timeframe("240", "TF2 (4H)")
-tf3 = input.timeframe("D",   "TF3 (Daily)")
-tf4 = input.timeframe("W",   "TF4 (Weekly)")
-tf5 = input.timeframe("M",   "TF5 (Monthly)")
+tf3 = input.timeframe("D", "TF3 (Daily)")
+tf4 = input.timeframe("W", "TF4 (Weekly)")
+tf5 = input.timeframe("M", "TF5 (Monthly)")
 
 use1 = input.bool(true, "Enable TF1")
 use2 = input.bool(true, "Enable TF2")
@@ -115,11 +114,112 @@ use4 = input.bool(true, "Enable TF4")
 use5 = input.bool(true, "Enable TF5")
 
 // ================= COLORS =================
-col1 = input.color(color.blue,   "TF1 Color")
-col2 = input.color(color.green,  "TF2 Color")
+col1 = input.color(color.blue, "TF1 Color")
+col2 = input.color(color.green, "TF2 Color")
 col3 = input.color(color.orange, "TF3 Color")
 col4 = input.color(color.purple, "TF4 Color")
-col5 = input.color(color.red,    "TF5 Color")
+col5 = input.color(color.red, "TF5 Color")
+
+// ================= POSITION =================
+pos =
+tablePos == "top_right" ? position.top_right :
+tablePos == "top_left" ? position.top_left :
+tablePos == "bottom_right" ? position.bottom_right :
+position.bottom_left
+
+// ================= FUNCTION =================
+f_tf(tf, enabled, col) =>
+[h,l,t] = request.security(syminfo.tickerid, tf, [high,low,time])
+[h1,l1,t1]= request.security(syminfo.tickerid, tf, [high[1],low[1],time[1]])
+[h2,l2,t2]= request.security(syminfo.tickerid, tf, [high[2],low[2],time[2]])
+
+newBar = ta.change(t) != 0
+
+var box c = na
+var box p = na
+var box p2 = na
+
+// ===== ADDED: midpoint lines =====
+var line cL = na
+var line pL = na
+var line p2L = na
+
+if enabled and newBar
+box.delete(c), box.delete(p), box.delete(p2)
+line.delete(cL), line.delete(pL), line.delete(p2L)
+
+if showCurrent
+c := box.new(t, h, t + timeframe.in_seconds(tf)*1000*extendBars, l,
+xloc=xloc.bar_time,
+bgcolor=color.new(col, 100),
+border_color=col,
+border_width=borderWidth)
+
+cMid = (h + l) / 2
+cL := line.new(t, cMid, t + timeframe.in_seconds(tf)*1000*extendBars, cMid,
+xloc=xloc.bar_time,
+color=col,
+style=line.style_dotted,
+width=1)
+
+if showPrev
+p := box.new(t1, h1, t1 + timeframe.in_seconds(tf)*1000*extendBars, l1,
+xloc=xloc.bar_time,
+bgcolor=color.new(col, 100),
+border_color=col,
+border_width=borderWidth)
+
+pMid = (h1 + l1) / 2
+pL := line.new(t1, pMid, t1 + timeframe.in_seconds(tf)*1000*extendBars, pMid,
+xloc=xloc.bar_time,
+color=col,
+style=line.style_dotted,
+width=1)
+
+if showPrev2
+p2 := box.new(t2, h2, t2 + timeframe.in_seconds(tf)*1000*extendBars, l2,
+xloc=xloc.bar_time,
+bgcolor=color.new(col, 100),
+border_color=col,
+border_width=borderWidth)
+
+p2Mid = (h2 + l2) / 2
+p2L := line.new(t2, p2Mid, t2 + timeframe.in_seconds(tf)*1000*extendBars, p2Mid,
+xloc=xloc.bar_time,
+color=col,
+style=line.style_dotted,
+width=1)
+
+[c,p,p2]
+
+// ================= EXECUTION =================
+f_tf(tf1, use1, col1)
+f_tf(tf2, use2, col2)
+f_tf(tf3, use3, col3)
+f_tf(tf4, use4, col4)
+f_tf(tf5, use5, col5)
+
+// ================= TABLE =================
+var table t = table.new(pos, 2, 6, border_width=1)
+
+if barstate.islast
+table.cell(t, 0, 0, "TF", text_color=color.white)
+table.cell(t, 1, 0, "Color", text_color=color.white)
+
+table.cell(t, 0, 1, "1H", text_color=color.white)
+table.cell(t, 1, 1, "■", text_color=col1)
+
+table.cell(t, 0, 2, "4H", text_color=color.white)
+table.cell(t, 1, 2, "■", text_color=col2)
+
+table.cell(t, 0, 3, "1D", text_color=color.white)
+table.cell(t, 1, 3, "■", text_color=col3)
+
+table.cell(t, 0, 4, "1W", text_color=color.white)
+table.cell(t, 1, 4, "■", text_color=col4)
+
+table.cell(t, 0, 5, "1M", text_color=color.white)
+table.cell(t, 1, 5, "■", text_color=col5)
     </pre>
     </div>
 
