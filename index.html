@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dr. Yousif's Squares Code</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: #111827;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: #1f2937;
+            border-bottom: 1px solid #374151;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        button {
+            background: #22c55e;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #0b1220;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        pre {
+            margin: 0;
+            padding: 18px;
+            overflow-x: auto;
+            max-height: 70vh;
+            background: #0b1220;
+            color: #93c5fd;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        .copied {
+            background: #2563eb !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">Dr. Yousif's Pine Script</div>
+            <button id="copyBtn" onclick="copyCode()">Copy Code</button>
+        </div>
+
+        <pre id="code">
+//@version=6
+indicator("Dr. Yousif's squares", overlay=true, max_boxes_count=500)
+
+// ================= INPUTS =================
+extendBars  = input.int(2, "Box Width", minval=1)
+borderWidth = input.int(2, "Border Thickness", minval=1, maxval=5)
+
+// show toggles (رجعناها)
+showCurrent = input.bool(true, "Show Current Candle")
+showPrev    = input.bool(true, "Show Previous Candle")
+showPrev2   = input.bool(true, "Show Previous 2 Candles")
+
+// table position
+tablePos = input.string("top_right", "Table Position",
+     options=["top_right","top_left","bottom_right","bottom_left"])
+
+// ================= DEFAULT TIMEFRAMES =================
+tf1 = input.timeframe("60",  "TF1 (1H)")
+tf2 = input.timeframe("240", "TF2 (4H)")
+tf3 = input.timeframe("D",   "TF3 (Daily)")
+tf4 = input.timeframe("W",   "TF4 (Weekly)")
+tf5 = input.timeframe("M",   "TF5 (Monthly)")
+
+use1 = input.bool(true, "Enable TF1")
+use2 = input.bool(true, "Enable TF2")
+use3 = input.bool(true, "Enable TF3")
+use4 = input.bool(true, "Enable TF4")
+use5 = input.bool(true, "Enable TF5")
+
+// ================= COLORS =================
+col1 = input.color(color.blue,   "TF1 Color")
+col2 = input.color(color.green,  "TF2 Color")
+col3 = input.color(color.orange, "TF3 Color")
+col4 = input.color(color.purple, "TF4 Color")
+col5 = input.color(color.red,    "TF5 Color")
+    </pre>
+    </div>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById("code").innerText;
+            navigator.clipboard.writeText(code);
+
+            const btn = document.getElementById("copyBtn");
+            btn.classList.add("copied");
+            btn.innerText = "Copied!";
+
+            setTimeout(() => {
+                btn.classList.remove("copied");
+                btn.innerText = "Copy Code";
+            }, 1500);
+        }
+    </script>
+
+</body>
+
+</html>
